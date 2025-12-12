@@ -2,7 +2,7 @@
   "name": "horarios-web",
   "version": "1.0.1",
   "description": "",
-  "main":"server.js", // "index.js",
+  "main":"server.js",
   "scripts": {
 	  "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
