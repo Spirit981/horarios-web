@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Horarios</title>
   <style>
     body {
@@ -29,7 +29,7 @@
     }
     button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
     }
     .filtros {
       background: linear-gradient(135deg, #667eea, #764ba2);
@@ -49,143 +49,148 @@
   </style>
 </head>
 <body>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     <h1 style="margin:0;">📋 Gestión de Horarios</h1>
     <button id="btn-config" type="button"
-            style="background:#eee;color:#333;border:1px solid #ccc;border-radius:6px;padding:8px 16px;font-size:14px;cursor:pointer;">
+      style="background:#eee; color:#333; border:1px solid #ccc; border-radius:6px; padding:8px 16px; font-size:14px; cursor:pointer;">
       OPCIONES
     </button>
   </div>
 
-  <div id="panel-config" style="display:none;border:1px solid #ccc;border-radius:8px;padding:15px;margin-bottom:20px;background:#f9f9f9;">
+  <div id="panel-config" style="display:none; border:1px solid #ccc; border-radius:8px; padding:15px; margin-bottom:20px; background:#f9f9f9;">
     <h2 style="margin-top:0;">Configuración de Mínimos</h2>
-    <p style="font-size:14px;margin-top:0;">Valores mínimos de personas por turno y día.</p>
+    <p style="font-size:14px; margin-top:0;">Valores mínimos de personas por turno y día.</p>
 
     <details open>
-      <summary style="cursor:pointer;font-weight:bold;">Mañana</summary>
+      <summary style="cursor:pointer; font-weight:bold;">Mañana</summary>
       <div style="margin-top:10px;">
-        <label>Lunes: <input type="number" id="min-manana-lunes" min="0" style="width:60px;"></label>
-        <label>Martes: <input type="number" id="min-manana-martes" min="0" style="width:60px;"></label>
-        <label>Miércoles: <input type="number" id="min-manana-miercoles" min="0" style="width:60px;"></label>
-        <label>Jueves: <input type="number" id="min-manana-jueves" min="0" style="width:60px;"></label>
-        <label>Viernes: <input type="number" id="min-manana-viernes" min="0" style="width:60px;"></label>
-        <label>Sábado: <input type="number" id="min-manana-sabado" min="0" style="width:60px;"></label>
+        <label>Lunes <input type="number" id="min-manana-lunes" min="0" style="width:60px;"></label>
+        <label>Martes <input type="number" id="min-manana-martes" min="0" style="width:60px;"></label>
+        <label>Miércoles <input type="number" id="min-manana-miercoles" min="0" style="width:60px;"></label>
+        <label>Jueves <input type="number" id="min-manana-jueves" min="0" style="width:60px;"></label>
+        <label>Viernes <input type="number" id="min-manana-viernes" min="0" style="width:60px;"></label>
+        <label>Sábado <input type="number" id="min-manana-sabado" min="0" style="width:60px;"></label>
       </div>
     </details>
 
     <details>
-      <summary style="cursor:pointer;font-weight:bold;">Tarde</summary>
+      <summary style="cursor:pointer; font-weight:bold;">Tarde</summary>
       <div style="margin-top:10px;">
-        <label>Lunes: <input type="number" id="min-tarde-lunes" min="0" style="width:60px;"></label>
-        <label>Martes: <input type="number" id="min-tarde-martes" min="0" style="width:60px;"></label>
-        <label>Miércoles: <input type="number" id="min-tarde-miercoles" min="0" style="width:60px;"></label>
-        <label>Jueves: <input type="number" id="min-tarde-jueves" min="0" style="width:60px;"></label>
-        <label>Viernes: <input type="number" id="min-tarde-viernes" min="0" style="width:60px;"></label>
+        <label>Lunes <input type="number" id="min-tarde-lunes" min="0" style="width:60px;"></label>
+        <label>Martes <input type="number" id="min-tarde-martes" min="0" style="width:60px;"></label>
+        <label>Miércoles <input type="number" id="min-tarde-miercoles" min="0" style="width:60px;"></label>
+        <label>Jueves <input type="number" id="min-tarde-jueves" min="0" style="width:60px;"></label>
+        <label>Viernes <input type="number" id="min-tarde-viernes" min="0" style="width:60px;"></label>
       </div>
     </details>
 
     <details>
-      <summary style="cursor:pointer;font-weight:bold;">Noche</summary>
+      <summary style="cursor:pointer; font-weight:bold;">Noche</summary>
       <div style="margin-top:10px;">
-        <label>Domingo: <input type="number" id="min-noche-domingo" min="0" style="width:60px;"></label>
-        <label>Lunes: <input type="number" id="min-noche-lunes" min="0" style="width:60px;"></label>
-        <label>Martes: <input type="number" id="min-noche-martes" min="0" style="width:60px;"></label>
-        <label>Miércoles: <input type="number" id="min-noche-miercoles" min="0" style="width:60px;"></label>
-        <label>Jueves: <input type="number" id="min-noche-jueves" min="0" style="width:60px;"></label>
-        <label>Viernes: <input type="number" id="min-noche-viernes" min="0" style="width:60px;"></label>
+        <label>Domingo <input type="number" id="min-noche-domingo" min="0" style="width:60px;"></label>
+        <label>Lunes <input type="number" id="min-noche-lunes" min="0" style="width:60px;"></label>
+        <label>Martes <input type="number" id="min-noche-martes" min="0" style="width:60px;"></label>
+        <label>Miércoles <input type="number" id="min-noche-miercoles" min="0" style="width:60px;"></label>
+        <label>Jueves <input type="number" id="min-noche-jueves" min="0" style="width:60px;"></label>
+        <label>Viernes <input type="number" id="min-noche-viernes" min="0" style="width:60px;"></label>
       </div>
     </details>
 
     <div style="margin-top:15px;">
-      <button type="button" id="btn-guardar-minimos"
-              style="background:#4CAF50;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;">
+      <button type="button" id="btn-guardar-minimos" style="background:#4CAF50; color:#fff; border:none; border-radius:6px; padding:8px 16px; cursor:pointer;">
         Guardar configuración
       </button>
-      <span id="msg-minimos" style="margin-left:10px;font-size:13px;color:#388E3C;"></span>
+      <span id="msg-minimos" style="margin-left:10px; font-size:13px; color:#388E3C;"></span>
     </div>
   </div>
 
   <form id="form-upload" enctype="multipart/form-data">
     <div style="margin-bottom:20px;">
-      <label>Selecciona uno o más ficheros Excel:</label><br>
-      <input type="file" name="excel" id="input-excel" multiple accept=".xlsx,.xls"/>
+      <label>Selecciona uno o más ficheros Excel:</label><br />
+      <input type="file" name="excel" id="input-excel" multiple accept=".xlsx,.xls" />
     </div>
 
-<div class="filtros">
-  <strong>Filtros (marca/desmarca):</strong><br>
+    <!-- NUEVO subida de cuadrante anual -->
+    <div style="margin-bottom:20px;">
+      <label>Subir cuadrante anual</label><br />
+      <input type="file" id="input-cuadrante" accept=".xlsx,.xls" />
+      <small style="display:block; margin-top:6px; color:#555;">
+        Año (B3), Semanas (A4:A55), Fechas (B4:B55), Nombres (C3:AQ3), Turnos (C4:AQ55).
+      </small>
+    </div>
 
-  <!-- Ausencias + subfiltros -->
-  <div style="margin-bottom:6px;">
-    <label style="margin-right:10px; cursor:pointer;">
-      <input type="checkbox" id="chk-ausencias" checked>
-      Ausencias (AP, BM, PAT, Vx, HF, VAC)
-    </label>
-  </div>
+    <div class="filtros">
+      <strong>Filtros (marca/desmarca):</strong><br />
 
-  <div id="filtros-ausencias"
-       style="margin:2px 0 10px 24px; display:none; font-size:14px;">
-    <label style="margin-right:12px;">
-      <input type="checkbox" id="aus-AP" checked> AP
-    </label>
-    <label style="margin-right:12px;">
-      <input type="checkbox" id="aus-BM" checked> BM
-    </label>
-    <label style="margin-right:12px;">
-      <input type="checkbox" id="aus-HH" checked> HHEE / HHDD
-    </label>
-    <label style="margin-right:12px;">
-      <input type="checkbox" id="aus-VAC" checked> Vacaciones (VC, VP, Vx, V)
-    </label>
-    <label style="margin-right:12px;">
-      <input type="checkbox" id="aus-OTRAS" checked> Otras (PAT, LIC, HF...)
-    </label>
-  </div>
+      <!-- NUEVO toggle para mostrar N Teórico -->
+      <label style="margin-right:15px; cursor:pointer;">
+        <input type="checkbox" id="chk-mostrar-teorico" />
+        Mostrar Nº Teórico
+      </label>
 
-  <!-- Bolsa por color -->
-  <label style="margin-right:15px;">
-    <input type="checkbox" id="chk-bolsa" checked>
-    Bolsa
-  </label>
+      <!-- Ausencias + subfiltros -->
+      <div style="margin-bottom:6px;">
+        <label style="margin-right:10px; cursor:pointer;">
+          <input type="checkbox" id="chk-ausencias" checked />
+          Ausencias (AP, BM, PAT, Vx, HF, VAC)
+        </label>
+      </div>
 
-  <!-- Disfrute HH por color -->
-  <label style="margin-right:15px;">
-    <input type="checkbox" id="chk-disfrutehh" checked>
-    Disfrute HH
-  </label>
+      <div id="filtros-ausencias" style="margin:2px 0 10px 24px; display:none; font-size:14px;">
+        <label style="margin-right:12px;">
+          <input type="checkbox" id="aus-AP" checked /> AP
+        </label>
+        <label style="margin-right:12px;">
+          <input type="checkbox" id="aus-BM" checked /> BM
+        </label>
+        <label style="margin-right:12px;">
+          <input type="checkbox" id="aus-HH" checked /> HHEE / HHDD
+        </label>
+        <label style="margin-right:12px;">
+          <input type="checkbox" id="aus-VAC" checked /> Vacaciones (VC, VP, Vx, V)
+        </label>
+        <label style="margin-right:12px;">
+          <input type="checkbox" id="aus-OTRAS" checked /> Otras (PAT, LIC, HF...)
+        </label>
+      </div>
 
-  <!-- 6 Días por color -->
-  <label style="margin-right:15px;">
-    <input type="checkbox" id="chk-6dias" checked>
-    6 Días
-  </label>
-</div>
+      <!-- Bolsa por color -->
+      <label style="margin-right:15px;">
+        <input type="checkbox" id="chk-bolsa" checked /> Bolsa
+      </label>
 
-<div style="margin-top:10px; margin-bottom:20px;">
-  <strong>Filtrar por semana:</strong>
-  <label style="margin-left:10px;">
-    Desde
-    <input type="number" id="semana-desde"
-           style="width:70px; margin-left:4px;">
-  </label>
-  <label style="margin-left:15px;">
-    Hasta
-    <input type="number" id="semana-hasta"
-           style="width:70px; margin-left:4px;">
-  </label>
-  <small style="margin-left:10px;">(se rellenan automáticamente; vacío = sin límite)</small>
-</div>
+      <!-- Disfrute HH por color -->
+      <label style="margin-right:15px;">
+        <input type="checkbox" id="chk-disfrutehh" checked /> Disfrute HH
+      </label>
 
+      <!-- 6 Días por color -->
+      <label style="margin-right:15px;">
+        <input type="checkbox" id="chk-6dias" checked /> 6 Días
+      </label>
+    </div>
+
+    <div style="margin-top:10px; margin-bottom:20px;">
+      <strong>Filtrar por semana:</strong>
+      <label style="margin-left:10px;">
+        Desde <input type="number" id="semana-desde" style="width:70px; margin-left:4px;" />
+      </label>
+      <label style="margin-left:15px;">
+        Hasta <input type="number" id="semana-hasta" style="width:70px; margin-left:4px;" />
+      </label>
+      <small style="margin-left:10px;">(se rellenan automáticamente; vacío = sin límite)</small>
+    </div>
 
     <button type="submit">🚀 Procesar horarios</button>
-	<button type="button" id="btn-estadisticas" style="margin-left:10px;">
-  📊 Ver estadísticas
-</button>
+    <button type="button" id="btn-estadisticas" style="margin-left:10px;">📊 Ver estadísticas</button>
   </form>
 
-  <hr style="margin:40px 0;">
+  <hr style="margin:40px 0;" />
 
   <div id="resultado"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
