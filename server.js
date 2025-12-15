@@ -1,14 +1,13 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
-const xlsx = require('xlsx');     // Datos
+const xlsx = require('xlsx'); // Datos
 const ExcelJS = require('exceljs'); // Colores
 const cors = require('cors');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
+const PORT = 3000;
 
 // Middleware
 app.use(cors());
@@ -23,10 +22,11 @@ app.get('/api/ping', (req, res) => {
 });
 
 // Colores ARGB
-const COLOR_6_DIAS_ARGB = 'FF00AF50';  // Verde 6 días
-const COLOR_HH_ARGB     = 'FFFFFF00';  // Amarillo HH
-const COLOR_BOLSA_ARGB  = 'FFFFBF00';  // Naranja Bolsa
-const COLOR_BOLSA_ARGB2  = 'FFFFC000';  // Naranja Bolsa2
+const COLOR_6_DIAS_ARGB = 'FF00AF50'; // Verde 6 días
+const COLOR_HH_ARGB = 'FFFFFF00'; // Amarillo HH
+const COLOR_BOLSA_ARGB = 'FFFFBF00'; // Naranja Bolsa
+const COLOR_BOLSA_ARGB2 = 'FFFFC000'; // Naranja Bolsa2
+const COLOR_ROJO_ARGB = 'FFFF0000'; // Rojo (ausencias genéricas)
 
 /**
  * Escanea colores con ExcelJS y devuelve un mapa:
@@ -35,10 +35,9 @@ const COLOR_BOLSA_ARGB2  = 'FFFFC000';  // Naranja Bolsa2
 async function escanearColores(filePath) {
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(filePath);
-
   const worksheet = workbook.getWorksheet(1); // Primera hoja
-  const colorMap = {};
 
+  const colorMap = {};
   if (!worksheet) {
     console.warn('No se encontró hoja en ExcelJS');
     return colorMap;
@@ -62,11 +61,12 @@ async function escanearColores(filePath) {
 
 /**
  * Busca la fila de días (Domingo, Lunes, ...) y devuelve:
- * - filaDias: índice de fila
+ * - filaDias: índice de fila (0-based sobre rows)
  * - dayCols: array de objetos { col, label } en orden Domingo..Sábado
  */
 function detectarFilaYColumnasDias(rows) {
   const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
   let filaDias = -1;
   let dayCols = [];
 
@@ -84,16 +84,31 @@ function detectarFilaYColumnasDias(rows) {
       }
     }
 
+    // Si en esa fila detectamos al menos 2 días, damos por hecho que es la fila de cabecera de días.
     if (encontrados.length >= 2) {
-      dayCols = encontrados.sort(
-        (a, b) => nombresDias.indexOf(a.label) - nombresDias.indexOf(b.label)
-      );
+      dayCols = encontrados.sort((a, b) => nombresDias.indexOf(a.label) - nombresDias.indexOf(b.label));
       filaDias = r;
       break;
     }
   }
 
   return { filaDias, dayCols };
+}
+
+/**
+ * Comprueba si un color ARGB es "rojo" (variantes comunes).
+ * Acepta: FFFF0000, FFFF0000, FFC00000, etc.
+ */
+function esColorRojo(argb) {
+  if (!argb) return false;
+  const hex = argb.toUpperCase();
+  // Rojo puro y variantes comunes de fondo rojo en Excel
+  return (
+    hex === 'FFFF0000' ||
+    hex === 'FFC00000' ||
+    hex === 'FFFF6666' ||
+    hex.startsWith('FFFF') // cualquier rojo brillante
+  );
 }
 
 /**
@@ -105,7 +120,6 @@ function procesarHorario(workbook, colorMap) {
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
   const range = sheet['!ref'];
-
   if (!range) return [];
 
   const rows = [];
@@ -117,6 +131,7 @@ function procesarHorario(workbook, colorMap) {
     for (let C = ref.s.c; C <= ref.e.c; C++) {
       const cellAddress = xlsx.utils.encode_cell({ r: R, c: C });
       const cell = sheet[cellAddress];
+
       const valor = cell ? String(cell.v || '').trim() : '';
       let tipo = 'Normal';
 
@@ -129,27 +144,34 @@ function procesarHorario(workbook, colorMap) {
         if (colorCelda === COLOR_6_DIAS_ARGB) {
           tipo = '6Dias';
         }
-        // 2) PRIORIDAD COLOR BOLSA (dejamos de usar nombres)
-        else if ((colorCelda === COLOR_BOLSA_ARGB) || (colorCelda === COLOR_BOLSA_ARGB2)) {
+        // 2) PRIORIDAD COLOR BOLSA
+        else if (colorCelda === COLOR_BOLSA_ARGB || colorCelda === COLOR_BOLSA_ARGB2) {
           tipo = 'Bolsa';
         }
         // 3) PRIORIDAD COLOR HH
         else if (colorCelda === COLOR_HH_ARGB) {
           tipo = 'DisfruteHH';
         }
-        // 4) AUSENCIAS POR CÓDIGO (agrupadas)
+        // 4) AUSENCIAS POR CÓDIGO (agrupadas) + nuevas variantes
         else if (
           // AP
           t.includes('(AP)') ||
           // BM
           t.includes('(BM)') ||
-          // HHEE/HHDD
+          // HHEE/HHDD (originales + con "8")
           t.includes('HHEE') || t.includes('HHDD') ||
+          t.includes('(8HHEE)') || t.includes('(8 HHEE)') ||
+          t.includes('(8HHDD)') || t.includes('(8 HHDD)') ||
           // Vacaciones VC/VP/Vx/V
           t.includes('(VC)') || t.includes('(VP)') || t.includes('(VX)') || t.includes('(V)') ||
-          // Resto licencias: PAT, LIC, HF, etc.
-          t.includes('(PAT)') || t.includes('(LIC)') || t.includes(' HF')
+          // Resto licencias: PAT, LIC, HF, HP, Óbito
+          t.includes('(PAT)') || t.includes('(LIC)') || t.includes(' HF') ||
+          t.includes('(HP)') || t.includes('(ÓBITO)') || t.includes('(OBITO)')
         ) {
+          tipo = 'Ausencia';
+        }
+        // 5) FALLBACK: cualquier celda con fondo ROJO que no esté ya clasificada => Ausencia
+        else if (esColorRojo(colorCelda)) {
           tipo = 'Ausencia';
         }
       }
@@ -170,9 +192,9 @@ function procesarHorario(workbook, colorMap) {
   let semanaNumero = null;
   for (let r = 0; r < rows.length; r++) {
     for (let c = 0; c < rows[r].length; c++) {
-      const texto = rows[r][c].valor;
+      const texto = rows[r][c]?.valor;
       if (texto && texto.toLowerCase().includes('semana') && texto.match(/(\d+)/)) {
-        semanaNumero = parseInt(texto.match(/(\d+)/)[1]);
+        semanaNumero = parseInt(texto.match(/(\d+)/)[1], 10);
         break;
       }
     }
@@ -182,13 +204,21 @@ function procesarHorario(workbook, colorMap) {
 
   const dias = rows[filaDias] || [];
 
+  // Normalizador (para "MAÑANA" vs "MANANA", tildes, etc.)
+  const norm = (s) => (s || '')
+    .toString()
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
   // Buscar filas donde aparece MAÑANA / TARDE / NOCHE en la primera columna
   let filaManana = -1;
   let filaTarde = -1;
   let filaNoche = -1;
+
   for (let r = 0; r < rows.length; r++) {
-    const primeraCol = (rows[r][0]?.valor || '').toUpperCase();
-    if (primeraCol.includes('MAÑANA')) filaManana = r;
+    const primeraCol = norm(rows[r][0]?.valor || '');
+    if (primeraCol.includes('MANANA')) filaManana = r;
     if (primeraCol.includes('TARDE')) filaTarde = r;
     if (primeraCol.includes('NOCHE')) filaNoche = r;
   }
@@ -201,6 +231,7 @@ function procesarHorario(workbook, colorMap) {
 
     for (let r = filaInicio; r < filaFin; r++) {
       const fila = rows[r];
+
       for (const dayInfo of dayCols) {
         const c = dayInfo.col; // columnas de Domingo..Sábado
         const diaTexto = dias[c] ? dias[c].valor : '';
@@ -232,14 +263,17 @@ function procesarHorario(workbook, colorMap) {
   // NOCHE
   if (filaNoche !== -1) {
     let filaFinNoche = rows.length;
+
     for (let r = filaNoche + 1; r < rows.length; r++) {
-      const primeraCol = (rows[r][0]?.valor || '').toUpperCase();
+      const primeraCol = norm(rows[r][0]?.valor || '');
       const filaVacia = !rows[r].some(celda => celda.valor && celda.valor.trim());
+
       if (primeraCol.includes('VACACIONES') || primeraCol.includes('ADMIN') || filaVacia) {
         filaFinNoche = r;
         break;
       }
     }
+
     procesarBloqueTurno(filaNoche, filaFinNoche, 'NOCHE');
   }
 
@@ -248,8 +282,8 @@ function procesarHorario(workbook, colorMap) {
   registros.forEach(r => {
     stats[r.tipo] = (stats[r.tipo] || 0) + 1;
   });
-  console.log(`✅ Semana ${semanaNumero}: ${registros.length} registros`, stats);
 
+  console.log(`✅ Semana ${semanaNumero}: ${registros.length} registros`, stats);
   return registros;
 }
 
@@ -262,17 +296,18 @@ app.post('/upload', upload.array('excel'), async (req, res) => {
     }
 
     let registrosTotal = [];
+
     for (const file of files) {
-      // 1. Escanear colores con ExcelJS
+      // 1) Escanear colores con ExcelJS
       const colorMap = await escanearColores(file.path);
 
-      // 2. Leer datos con XLSX
+      // 2) Leer datos con XLSX
       const workbook = xlsx.readFile(file.path);
 
-      // 3. Procesar usando mapa de colores
+      // 3) Procesar usando mapa de colores
       const regs = procesarHorario(workbook, colorMap);
-
       registrosTotal = registrosTotal.concat(regs);
+
       fs.unlinkSync(file.path);
     }
 
